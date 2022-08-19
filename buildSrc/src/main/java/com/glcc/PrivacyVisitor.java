@@ -53,7 +53,7 @@ class MyAdapter extends AdviceAdapter {
         readRules();
     }
     public void readRules(){
-        String filePath = "C:\\Users\\HP\\AndroidStudioProjects\\AddTryCatchPlugin\\buildSrc\\src\\main\\resources\\privacy.txt";
+        String filePath = "/Users/mooncake/AndroidStudioProjects/DetectionPlugin/buildSrc/src/main/resources/privacy.txt";
 
         try {
             FileInputStream fin = new FileInputStream(filePath);
