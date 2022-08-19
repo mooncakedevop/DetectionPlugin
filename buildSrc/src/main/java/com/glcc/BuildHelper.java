@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BuildHelper {
-    public Pattern pattern = Pattern.compile(".*implementation.*");
+    public Pattern pattern = Pattern.compile(".*implementation.*'.*'");
     public Pattern dependency = Pattern.compile("'.+'");
     public Gradle readGradle(String filePath) throws IOException {
         Path path = Paths.get(filePath);

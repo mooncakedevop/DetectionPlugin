@@ -35,9 +35,24 @@ class DetectionTransform extends HunterTransform {
     protected RunVariant getRunVariant() {
         return super.getRunVariant();
     }
+    public void scanPermission(){
+        ManifestHelper m = new ManifestHelper(project.getProjectDir()+"/src/main/AndroidManifest.xml");
+        m.getPermissions().forEach(permission -> System.out.println(permission));
+    }
+
+    public void scanLib(){
+        BuildHelper b = new BuildHelper();
+        try {
+            b.readGradle(project.getProjectDir()+"/build.gradle");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+        scanPermission();
+        scanLib();
         transformInvocation.getInputs().forEach(input -> {
                     input.getDirectoryInputs().forEach(directoryInput -> {
                         String path = directoryInput.getFile().getAbsolutePath();
