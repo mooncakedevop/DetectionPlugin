@@ -8,4 +8,5 @@
 
 引入插件即可
 
+[产物检测](https://github.com/mooncakedevop/staticAnalysis)
 

@@ -36,17 +36,22 @@ class DetectionTransform extends HunterTransform {
         return super.getRunVariant();
     }
     public void scanPermission(){
+        System.out.println("*******ScanPermission start*******");
         ManifestHelper m = new ManifestHelper(project.getProjectDir()+"/src/main/AndroidManifest.xml");
         m.getPermissions().forEach(permission -> System.out.println(permission));
+        System.out.println("*******ScanPermission finish*******\n");
     }
 
     public void scanLib(){
+        System.out.println("*******ScanLib start*******");
         BuildHelper b = new BuildHelper();
         try {
             b.readGradle(project.getProjectDir()+"/build.gradle");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("*******ScanLib finish*******\n");
+
     }
 
     @Override
