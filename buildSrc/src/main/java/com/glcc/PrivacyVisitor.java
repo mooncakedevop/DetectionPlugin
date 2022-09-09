@@ -70,12 +70,16 @@ class MyAdapter extends AdviceAdapter {
         }
     }
 
+
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 
         String sig = owner.replace("/",".") +"." +name;
         if (isPrivacy(sig)){
+//            new InjectVisitor(Opcodes.ASM5,mv);
             System.out.println("class:" + className);
+            inject();
+
         }
         super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
@@ -88,5 +92,16 @@ class MyAdapter extends AdviceAdapter {
             }
         }
         return false;
+    }
+
+    public void inject(){
+        mv.visitLdcInsn("detection point:");
+        mv.visitTypeInsn(Opcodes.NEW, "java/lang/Throwable");
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Throwable", "<init>", "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "getStackTraceString", "(Ljava/lang/Throwable;)Ljava/lang/String;", false);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false);
+
+        mv.visitInsn(Opcodes.POP);
     }
 }

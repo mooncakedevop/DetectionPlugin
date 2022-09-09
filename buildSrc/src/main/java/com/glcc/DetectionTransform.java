@@ -9,11 +9,7 @@ import org.gradle.api.Project;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -97,6 +93,11 @@ class DetectionTransform extends HunterTransform {
             ClassWriter writer = new ClassWriter(reader,ClassWriter.COMPUTE_MAXS);
             PrivacyVisitor visitor = new PrivacyVisitor(writer, clsFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+            byte[] code = writer.toByteArray();
+            FileOutputStream fos = new FileOutputStream(
+                    clsFile.getParentFile().getAbsolutePath() + File.separator + clsFile.getName());
+            fos.write(code);
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,15 +126,6 @@ class DetectionTransform extends HunterTransform {
         DataInputStream dis = null;
         try {
             dis = new DataInputStream(new FileInputStream(file));
-//            CtMethod ctMethod = new CtMethod();
-//            ctMethod.instrument(new ExprEditor(){
-//                @Override
-//                public void edit(MethodCall m) throws CannotCompileException {
-//                    if(m.getMethodName().contains("android/telephony/TelephonyManage)"){
-//                        System.out.println(m.getMethodName());
-//                    }
-//                }
-//            });
             ClassFile classFile = new ClassFile(dis);
             classFile.getMethods().forEach(methodInfo -> {
                 CodeAttribute code = methodInfo.getCodeAttribute();
@@ -149,15 +141,7 @@ class DetectionTransform extends HunterTransform {
                     int op = itor.byteAt(index);
                 }
 
-//                if (code.contains("android/telephony/TelephonyManage")) {
-//                    System.out.println(classFile.getName());
-//                }
-                ;
-
             });
-            //                        ClassPool pool = ClassPool.getDefault();
-            //                        CtClass ctClass = pool.getCtClass("");
-            //                        ctClass.getMethod().insertBefore();
 
         } catch (Exception e) {
             System.out.println("transform fail");
