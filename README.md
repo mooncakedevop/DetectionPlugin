@@ -5,7 +5,6 @@ DetectionPlugin是一款帮助开发者检测权限、隐私API使用，完成�
 * 编译过程中的静态字节码扫描
 * 编译后的APK逆向检测
 * 基于字节码插桩的动态运行检测
-# ⚔🛡 Awesome Graph Adversarial Learning
 ## 技术方案
 具体来说，检测可以分为两类场景，在开发过程中的源码检测和打包后的产物检测。
 对于源码检测，可以设置在在编译过程中，对中间产物class进行检测。这里可以使用transfom来实现，transform检测工作流程如下图所示：
@@ -16,5 +15,5 @@ DetectionPlugin是一款帮助开发者检测权限、隐私API使用，完成�
 ## 使用方式
 ### 源码检测
 项目中包含了一个app示例代码，在编译app的过程中，会自动完成隐私API的检测和插桩。
-## [产物检测](https://github.com/mooncakedevop/staticAnalysis)
+### [产物检测](https://github.com/mooncakedevop/staticAnalysis)
 运行前请指定，要分析的apk和Android sdk的Platforms路径，然后运行PrivacyDetection的main方法即可，详细说明见产物检测仓库。
