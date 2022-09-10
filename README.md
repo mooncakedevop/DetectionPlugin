@@ -9,6 +9,7 @@ DetectionPlugin是一款帮助开发者检测权限、隐私API使用，完成�
 具体来说，检测可以分为两类场景，在开发过程中的源码检测和打包后的产物检测。
 对于源码检测，可以设置在在编译过程中，对中间产物class进行检测。这里可以使用transfom来实现，transform检测工作流程如下图所示：
 ![transform](./transform.png)
+
 自定义transform后，使用asm操作字节码：1、读取class，检测非权限敏感API。2、代码插桩、在API调用前，记录权限api调用栈。
 产物检测相对来说：拓展性更强一些，可以批量检测多个应用，且用户只需要上传编译后的APK即可。这里采用了soot框架，检测的流程如下图所示：
 ![transform](./soot.jpg)
