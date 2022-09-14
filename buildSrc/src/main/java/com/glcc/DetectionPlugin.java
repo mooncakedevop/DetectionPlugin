@@ -11,8 +11,6 @@ public class DetectionPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        DetectionExtension extension = project.getExtensions().create("addTryCatch", DetectionExtension.class);
-//        Config.getInstance().extension = extension;
         AppExtension appExtension = (AppExtension) project.getProperties().get("android");
         appExtension.registerTransform(new DetectionTransform(project), Collections.EMPTY_LIST);
     }
