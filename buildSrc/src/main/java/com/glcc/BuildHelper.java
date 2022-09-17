@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +13,8 @@ import java.util.regex.Pattern;
 public class BuildHelper {
     public Pattern pattern = Pattern.compile(".*implementation.*'.*'");
     public Pattern dependency = Pattern.compile("'.+'");
-    public Gradle readGradle(String filePath) throws IOException {
+    public HashMap<String, String> readGradle(String filePath) throws IOException {
+        HashMap<String, String> map = new HashMap<>();
         Path path = Paths.get(filePath);
         List<String>  lines = Files.readAllLines(path, Charset.defaultCharset());
         for (String line: lines){
@@ -23,12 +25,12 @@ public class BuildHelper {
                     String org = infos[0];
                     String product = infos[1];
                     String version = infos[2];
+                    map.put(org + ":" + product, version);
                     System.out.println("organization:" + org+ " product:" + product + "  version: " + version);
-
                 }
             }
         }
-        return new Gradle();
+        return map;
     }
     public static void main(String[] args){
         BuildHelper b = new BuildHelper();
@@ -40,14 +42,4 @@ public class BuildHelper {
     }
 }
 
-class Gradle{
-    private List<String> dependencies;
 
-    public List<String> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<String> dependencies) {
-        this.dependencies = dependencies;
-    }
-}

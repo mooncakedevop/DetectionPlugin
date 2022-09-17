@@ -11,6 +11,7 @@ import org.objectweb.asm.ClassWriter;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 import javassist.CannotCompileException;
@@ -22,6 +23,8 @@ import javassist.bytecode.CodeIterator;
 
 class DetectionTransform extends HunterTransform {
     private Project project;
+    private String packageName;
+    private boolean first = true;
     public DetectionTransform(Project project){
         super(project);
         this.project = project;
@@ -34,26 +37,28 @@ class DetectionTransform extends HunterTransform {
     public void scanPermission(){
         System.out.println("*******ScanPermission start*******");
         ManifestHelper m = new ManifestHelper(project.getProjectDir()+"/src/main/AndroidManifest.xml");
+        System.out.println("packageName: " + m.getPackageName());
+        packageName = m.getPackageName();
         m.getPermissions().forEach(permission -> System.out.println(permission));
         System.out.println("*******ScanPermission finish*******\n");
     }
 
-    public void scanLib(){
+    public HashMap<String, String> scanLib(){
         System.out.println("*******ScanLib start*******");
         BuildHelper b = new BuildHelper();
         try {
-            b.readGradle(project.getProjectDir()+"/build.gradle");
+            return b.readGradle(project.getProjectDir()+"/build.gradle");
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        System.out.println("*******ScanLib finish*******\n");
-
     }
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         scanPermission();
-        scanLib();
+        HashMap<String, String> map = scanLib();
+        if (map !=null) System.out.println("*******ScanLib finish*******\n");
         transformInvocation.getInputs().forEach(input -> {
                     input.getDirectoryInputs().forEach(directoryInput -> {
                         String path = directoryInput.getFile().getAbsolutePath();
@@ -69,7 +74,13 @@ class DetectionTransform extends HunterTransform {
         try {
             File dirs = new File(path);
             for (File dir: Objects.requireNonNull(dirs.listFiles())){
+
                 if (dir.getName().contains("com")){
+
+                    if(first){
+                        InjectApplication(dir.getParent());
+                        first = false;
+                    }
                     Arrays.stream(checkFiles(dir)).forEach(file -> {
                         if (file.getName().endsWith(".class") && !isExclude(file.getName())) {
                             try {
@@ -86,6 +97,18 @@ class DetectionTransform extends HunterTransform {
             e.printStackTrace();
         }
     }
+
+    private void InjectApplication(String path) {
+        try {
+            ApplicationGenerator.createClass(path);
+            System.out.println("111");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private  void doInject(Project project, File clsFile, String originPath) throws NotFoundException, CannotCompileException {
         try {
             InputStream inputStream = new FileInputStream(clsFile);

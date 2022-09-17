@@ -95,13 +95,15 @@ class MyAdapter extends AdviceAdapter {
     }
 
     public void inject(){
-        mv.visitLdcInsn("detection point:");
-        mv.visitTypeInsn(Opcodes.NEW, "java/lang/Throwable");
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Throwable", "<init>", "()V", false);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "getStackTraceString", "(Ljava/lang/Throwable;)Ljava/lang/String;", false);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false);
+//        mv.visitLdcInsn("detection point:");
+//        mv.visitTypeInsn(Opcodes.NEW, "java/lang/Throwable");
+//        mv.visitInsn(Opcodes.DUP);
+//        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Throwable", "<init>", "()V", false);
+//        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "getStackTraceString", "(Ljava/lang/Throwable;)Ljava/lang/String;", false);
+//        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false);
 
-        mv.visitInsn(Opcodes.POP);
+//        mv.visitFieldInsn(Opcodes.INVOKESTATIC);
+        mv.visitMethodInsn(INVOKESTATIC, "com/detectionplugin/DokitApplication", "LogStackTrace", "()V", false);
+        mv.visitCode();
     }
 }

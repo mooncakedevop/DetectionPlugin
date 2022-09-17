@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
         String str = Build.MODEL;
         String res = "cat /proc/cpuinfo";
         TelephonyManager manager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
@@ -27,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 imei = manager.getImei();
+                DokitApplication.count++;
+                Log.i("detection Point", new Throwable().getStackTrace().toString());
         } else {
              imei = manager.getDeviceId();
         }
