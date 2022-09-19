@@ -1,10 +1,10 @@
 package com.glcc;
 
-import com.android.build.api.transform.TransformException;
-import com.android.build.api.transform.TransformInvocation;
+import com.android.build.api.transform.*;
 import com.quinn.hunter.transform.HunterTransform;
 import com.quinn.hunter.transform.RunVariant;
 
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -63,14 +63,16 @@ class DetectionTransform extends HunterTransform {
                     input.getDirectoryInputs().forEach(directoryInput -> {
                         String path = directoryInput.getFile().getAbsolutePath();
                         System.out.println("Privacy detection plugin is running\n");
-                        inject(path, project);
+                        TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
+                        inject(path, project,directoryInput ,outputProvider);
+
                         System.out.println("\nPrivacy detection plugin scan end\n");
 //                        check(directoryInput.getFile());
                     });
                 }
                 );
     }
-    public void inject(String path, Project project){
+    public void inject(String path, Project project, DirectoryInput directoryInput, TransformOutputProvider outputProvider){
         try {
             File dirs = new File(path);
             for (File dir: Objects.requireNonNull(dirs.listFiles())){
@@ -84,7 +86,7 @@ class DetectionTransform extends HunterTransform {
                     Arrays.stream(checkFiles(dir)).forEach(file -> {
                         if (file.getName().endsWith(".class") && !isExclude(file.getName())) {
                             try {
-                                doInject(project, file, path);
+                                doInject(project, file, path,directoryInput ,outputProvider);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -109,7 +111,7 @@ class DetectionTransform extends HunterTransform {
         }
     }
 
-    private  void doInject(Project project, File clsFile, String originPath) throws NotFoundException, CannotCompileException {
+    private  void doInject(Project project, File clsFile, String originPath, DirectoryInput directoryInput, TransformOutputProvider outputProvider) throws NotFoundException, CannotCompileException {
         try {
             InputStream inputStream = new FileInputStream(clsFile);
             ClassReader reader = new ClassReader(inputStream);
@@ -117,8 +119,17 @@ class DetectionTransform extends HunterTransform {
             PrivacyVisitor visitor = new PrivacyVisitor(writer, clsFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
-            FileOutputStream fos = new FileOutputStream(
-                    clsFile.getParentFile().getAbsolutePath() + File.separator + clsFile.getName());
+            File dest = outputProvider.getContentLocation(directoryInput.getName(),
+                    directoryInput.getContentTypes(), directoryInput.getScopes(),
+                    Format.DIRECTORY);
+//            FileOutputStream fos = new FileOutputStream(
+//                    clsFile.getParentFile().getAbsolutePath() + File.separator + clsFile.getName());
+//            System.out.println(directoryInput.getFile().getAbsolutePath());
+//            System.out.println(dest.getAbsolutePath());
+//            System.out.println(clsFile.getAbsolutePath());
+            String o = clsFile.getAbsolutePath().replace(directoryInput.getFile().getAbsolutePath(), dest.getAbsolutePath());
+            FileUtils.touch(new File(o));
+            FileOutputStream fos = new FileOutputStream(o);
             fos.write(code);
             fos.close();
         } catch (Exception e) {
