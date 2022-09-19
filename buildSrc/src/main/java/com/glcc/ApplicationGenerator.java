@@ -28,7 +28,7 @@ public class ApplicationGenerator {
         FileUtils.touch(Application);
         System.out.println("output: " + Application.getAbsolutePath());
         FileOutputStream fos = new FileOutputStream(Application);
-        fos.write(DokitApplicationDump.dump());
+        fos.write(DokitApplicationDump.dump("com/detectionplugin/DokitApplication"));
         fos.close();
 
     }

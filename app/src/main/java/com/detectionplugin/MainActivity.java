@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("11","test finish");
 //        setContentView(R.layout.activity_main);
         String str = Build.MODEL;
         String res = "cat /proc/cpuinfo";

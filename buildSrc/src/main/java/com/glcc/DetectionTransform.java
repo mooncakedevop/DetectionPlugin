@@ -60,6 +60,7 @@ class DetectionTransform extends HunterTransform {
         scanPermission();
         HashMap<String, String> map = scanLib();
         if (map !=null) System.out.println("*******ScanLib finish*******\n");
+        //copy jar
         transformInvocation.getInputs().forEach( transformInput -> {
             transformInput.getJarInputs().forEach(jarInput -> {
                 File jarFile = jarInput.getFile();
@@ -101,10 +102,10 @@ class DetectionTransform extends HunterTransform {
 
                 if (dir.getName().contains("com")){
 
-//                    if(first){
-//                        InjectApplication(dir,directoryInput, outputProvider);
-//                        first = false;
-//                    }
+                    if(first){
+                        InjectApplication(dir,directoryInput, outputProvider);
+                        first = false;
+                    }
                     Arrays.stream(checkFiles(dir)).forEach(file -> {
                         if (file.getName().endsWith(".class") && !isExclude(file.getName())) {
                             try {
@@ -141,13 +142,6 @@ class DetectionTransform extends HunterTransform {
             PrivacyVisitor visitor = new PrivacyVisitor(writer, clsFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
-//            File dest = outputProvider.getContentLocation(directoryInput.getName(),
-//                    directoryInput.getContentTypes(), directoryInput.getScopes(),
-//                    Format.DIRECTORY);
-//
-//            String output = clsFile.getAbsolutePath().replace(directoryInput.getFile().getAbsolutePath(), dest.getAbsolutePath());
-//
-//            FileUtils.touch(new File(output));
             FileOutputStream fos = new FileOutputStream(clsFile);
             fos.write(code);
             fos.close();

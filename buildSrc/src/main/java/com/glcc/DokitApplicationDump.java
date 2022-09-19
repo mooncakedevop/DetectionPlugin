@@ -10,7 +10,7 @@ import org.objectweb.asm.RecordComponentVisitor;
 
 public class DokitApplicationDump implements Opcodes {
 
-    public static byte[] dump() throws Exception {
+    public static byte[] dump(String name) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         FieldVisitor fieldVisitor;
@@ -18,7 +18,7 @@ public class DokitApplicationDump implements Opcodes {
         MethodVisitor methodVisitor;
         AnnotationVisitor annotationVisitor0;
 
-        classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, "com/example/myapplication/DokitApplication", null, "android/app/Application", null);
+        classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, name, null, "android/app/Application", null);
 
         classWriter.visitSource("DokitApplication.java", null);
 
@@ -45,7 +45,7 @@ public class DokitApplicationDump implements Opcodes {
             methodVisitor.visitInsn(RETURN);
             Label label1 = new Label();
             methodVisitor.visitLabel(label1);
-            methodVisitor.visitLocalVariable("this", "Lcom/example/myapplication/DokitApplication;", null, label0, label1, 0);
+            methodVisitor.visitLocalVariable("this", "L"+ name+";", null, label0, label1, 0);
             methodVisitor.visitMaxs(1, 1);
             methodVisitor.visitEnd();
         }
@@ -55,7 +55,7 @@ public class DokitApplicationDump implements Opcodes {
             Label label0 = new Label();
             methodVisitor.visitLabel(label0);
             methodVisitor.visitLineNumber(12, label0);
-            methodVisitor.visitFieldInsn(GETSTATIC, "com/example/myapplication/DokitApplication", "libs", "Ljava/util/HashMap;");
+            methodVisitor.visitFieldInsn(GETSTATIC, name, "libs", "Ljava/util/HashMap;");
             methodVisitor.visitVarInsn(ALOAD, 0);
             methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "containsKey", "(Ljava/lang/Object;)Z", false);
             Label label1 = new Label();
@@ -63,7 +63,7 @@ public class DokitApplicationDump implements Opcodes {
             Label label2 = new Label();
             methodVisitor.visitLabel(label2);
             methodVisitor.visitLineNumber(13, label2);
-            methodVisitor.visitFieldInsn(GETSTATIC, "com/example/myapplication/DokitApplication", "libs", "Ljava/util/HashMap;");
+            methodVisitor.visitFieldInsn(GETSTATIC, name, "libs", "Ljava/util/HashMap;");
             methodVisitor.visitVarInsn(ALOAD, 0);
             methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
             methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/String");
@@ -85,7 +85,7 @@ public class DokitApplicationDump implements Opcodes {
             Label label0 = new Label();
             methodVisitor.visitLabel(label0);
             methodVisitor.visitLineNumber(19, label0);
-            methodVisitor.visitFieldInsn(GETSTATIC, "com/example/myapplication/DokitApplication", "libs", "Ljava/util/HashMap;");
+            methodVisitor.visitFieldInsn(GETSTATIC, name, "libs", "Ljava/util/HashMap;");
             methodVisitor.visitVarInsn(ALOAD, 0);
             methodVisitor.visitVarInsn(ALOAD, 1);
             methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", false);
@@ -212,15 +212,15 @@ public class DokitApplicationDump implements Opcodes {
             Label label12 = new Label();
             methodVisitor.visitLabel(label12);
             methodVisitor.visitLineNumber(34, label12);
-            methodVisitor.visitFieldInsn(GETSTATIC, "com/example/myapplication/DokitApplication", "count", "I");
+            methodVisitor.visitFieldInsn(GETSTATIC, name, "count", "I");
             methodVisitor.visitInsn(ICONST_1);
             methodVisitor.visitInsn(IADD);
-            methodVisitor.visitFieldInsn(PUTSTATIC, "com/example/myapplication/DokitApplication", "count", "I");
+            methodVisitor.visitFieldInsn(PUTSTATIC, name, "count", "I");
             Label label13 = new Label();
             methodVisitor.visitLabel(label13);
             methodVisitor.visitLineNumber(35, label13);
             methodVisitor.visitVarInsn(ALOAD, 5);
-            methodVisitor.visitMethodInsn(INVOKESTATIC, "com/example/myapplication/DokitApplication", "getVersion", "(Ljava/lang/String;)Ljava/lang/String;", false);
+            methodVisitor.visitMethodInsn(INVOKESTATIC, name, "getVersion", "(Ljava/lang/String;)Ljava/lang/String;", false);
             Label label14 = new Label();
             methodVisitor.visitJumpInsn(IFNULL, label14);
             Label label15 = new Label();
@@ -234,7 +234,7 @@ public class DokitApplicationDump implements Opcodes {
             methodVisitor.visitLineNumber(38, label14);
             methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[]{"java/lang/String"}, 0, null);
             methodVisitor.visitLdcInsn("count");
-            methodVisitor.visitFieldInsn(GETSTATIC, "com/example/myapplication/DokitApplication", "count", "I");
+            methodVisitor.visitFieldInsn(GETSTATIC, name, "count", "I");
             methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(I)Ljava/lang/String;", false);
             methodVisitor.visitMethodInsn(INVOKESTATIC, "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I", false);
             methodVisitor.visitInsn(POP);
