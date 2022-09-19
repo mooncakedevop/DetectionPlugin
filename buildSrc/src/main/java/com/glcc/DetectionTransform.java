@@ -56,16 +56,37 @@ class DetectionTransform extends HunterTransform {
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+        TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
         scanPermission();
         HashMap<String, String> map = scanLib();
         if (map !=null) System.out.println("*******ScanLib finish*******\n");
+        transformInvocation.getInputs().forEach( transformInput -> {
+            transformInput.getJarInputs().forEach(jarInput -> {
+                File jarFile = jarInput.getFile();
+                File destJar = outputProvider.getContentLocation(jarInput.getName(),
+                        jarInput.getContentTypes(),
+                        jarInput.getScopes(), Format.JAR);
+                try {
+                    FileUtils.copyFile(jarFile, destJar);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        });
+
         transformInvocation.getInputs().forEach(input -> {
+
                     input.getDirectoryInputs().forEach(directoryInput -> {
                         String path = directoryInput.getFile().getAbsolutePath();
                         System.out.println("Privacy detection plugin is running\n");
-                        TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
+//
                         inject(path, project,directoryInput ,outputProvider);
-
+                        File destDir = outputProvider.getContentLocation(directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
+                        try {
+                            FileUtils.copyDirectory(directoryInput.getFile(), destDir);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         System.out.println("\nPrivacy detection plugin scan end\n");
 //                        check(directoryInput.getFile());
                     });
@@ -74,15 +95,16 @@ class DetectionTransform extends HunterTransform {
     }
     public void inject(String path, Project project, DirectoryInput directoryInput, TransformOutputProvider outputProvider){
         try {
+
             File dirs = new File(path);
             for (File dir: Objects.requireNonNull(dirs.listFiles())){
 
                 if (dir.getName().contains("com")){
 
-                    if(first){
-                        InjectApplication(dir.getParent());
-                        first = false;
-                    }
+//                    if(first){
+//                        InjectApplication(dir,directoryInput, outputProvider);
+//                        first = false;
+//                    }
                     Arrays.stream(checkFiles(dir)).forEach(file -> {
                         if (file.getName().endsWith(".class") && !isExclude(file.getName())) {
                             try {
@@ -100,9 +122,9 @@ class DetectionTransform extends HunterTransform {
         }
     }
 
-    private void InjectApplication(String path) {
+    private void InjectApplication(File dir,DirectoryInput directoryInput, TransformOutputProvider outputProvider) {
         try {
-            ApplicationGenerator.createClass(path);
+            ApplicationGenerator.createClass(dir, directoryInput, outputProvider);
             System.out.println("111");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -119,17 +141,14 @@ class DetectionTransform extends HunterTransform {
             PrivacyVisitor visitor = new PrivacyVisitor(writer, clsFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
-            File dest = outputProvider.getContentLocation(directoryInput.getName(),
-                    directoryInput.getContentTypes(), directoryInput.getScopes(),
-                    Format.DIRECTORY);
-//            FileOutputStream fos = new FileOutputStream(
-//                    clsFile.getParentFile().getAbsolutePath() + File.separator + clsFile.getName());
-//            System.out.println(directoryInput.getFile().getAbsolutePath());
-//            System.out.println(dest.getAbsolutePath());
-//            System.out.println(clsFile.getAbsolutePath());
-            String o = clsFile.getAbsolutePath().replace(directoryInput.getFile().getAbsolutePath(), dest.getAbsolutePath());
-            FileUtils.touch(new File(o));
-            FileOutputStream fos = new FileOutputStream(o);
+//            File dest = outputProvider.getContentLocation(directoryInput.getName(),
+//                    directoryInput.getContentTypes(), directoryInput.getScopes(),
+//                    Format.DIRECTORY);
+//
+//            String output = clsFile.getAbsolutePath().replace(directoryInput.getFile().getAbsolutePath(), dest.getAbsolutePath());
+//
+//            FileUtils.touch(new File(output));
+            FileOutputStream fos = new FileOutputStream(clsFile);
             fos.write(code);
             fos.close();
         } catch (Exception e) {

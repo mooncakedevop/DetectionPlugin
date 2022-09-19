@@ -26,8 +26,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 imei = manager.getImei();
-                DokitApplication.count++;
-                Log.i("detection Point", new Throwable().getStackTrace().toString());
         } else {
              imei = manager.getDeviceId();
         }
