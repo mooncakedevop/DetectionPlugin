@@ -11,7 +11,7 @@ import org.objectweb.asm.RecordComponentVisitor;
 public class DokitApplicationDump implements Opcodes {
 
     public static byte[] dump(String name) throws Exception {
-        name  = name + "/DokitApplication";
+        name = name + "/DokitApplication";
         ClassWriter classWriter = new ClassWriter(0);
         FieldVisitor fieldVisitor;
         RecordComponentVisitor recordComponentVisitor;
@@ -45,7 +45,7 @@ public class DokitApplicationDump implements Opcodes {
             methodVisitor.visitInsn(RETURN);
             Label label1 = new Label();
             methodVisitor.visitLabel(label1);
-            methodVisitor.visitLocalVariable("this", "L"+ name+";", null, label0, label1, 0);
+            methodVisitor.visitLocalVariable("this", "L" + name + ";", null, label0, label1, 0);
             methodVisitor.visitMaxs(1, 1);
             methodVisitor.visitEnd();
         }

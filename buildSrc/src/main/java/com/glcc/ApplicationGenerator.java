@@ -13,13 +13,9 @@ import java.io.IOException;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ApplicationGenerator {
-
     public static void createClass(File application, String filePackageName) throws Exception {
         FileOutputStream fos = new FileOutputStream(application);
         fos.write(DokitApplicationDump.dump(filePackageName));
         fos.close();
     }
-
-
-
 }

@@ -18,7 +18,8 @@ class DetectionTransform extends HunterTransform {
     private Project project;
     private String packageName;
     private boolean first = true;
-    public DetectionTransform(Project project){
+
+    public DetectionTransform(Project project) {
         super(project);
         this.project = project;
     }
@@ -27,20 +28,21 @@ class DetectionTransform extends HunterTransform {
     protected RunVariant getRunVariant() {
         return super.getRunVariant();
     }
-    public void scanPermission(){
+
+    public void scanPermission() {
         System.out.println("*******ScanPermission start*******");
-        ManifestHelper m = new ManifestHelper(project.getProjectDir()+"/src/main/AndroidManifest.xml");
+        ManifestHelper m = new ManifestHelper(project.getProjectDir() + "/src/main/AndroidManifest.xml");
         System.out.println("packageName: " + m.getPackageName());
         packageName = m.getPackageName();
         m.getPermissions().forEach(permission -> System.out.println(permission));
         System.out.println("*******ScanPermission finish*******\n");
     }
 
-    public HashMap<String, String> scanLib(){
+    public HashMap<String, String> scanLib() {
         System.out.println("*******ScanLib start*******");
         BuildHelper b = new BuildHelper();
         try {
-            return b.readGradle(project.getProjectDir()+"/build.gradle");
+            return b.readGradle(project.getProjectDir() + "/build.gradle");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -52,19 +54,19 @@ class DetectionTransform extends HunterTransform {
         TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
         scanPermission();
         HashMap<String, String> map = scanLib();
-        if (map !=null) System.out.println("*******ScanLib finish*******\n");
-        Collection<TransformInput> inputs =  transformInvocation.getInputs();
+        if (map != null) System.out.println("*******ScanLib finish*******\n");
+        Collection<TransformInput> inputs = transformInvocation.getInputs();
         //copy jar
-        transformInvocation.getInputs().forEach( transformInput -> {
+        transformInvocation.getInputs().forEach(transformInput -> {
             transformInput.getJarInputs().forEach(jarInput -> {
                 File jarFile = jarInput.getFile();
                 File destJar = outputProvider.getContentLocation(jarInput.getName(),
                         jarInput.getContentTypes(),
                         jarInput.getScopes(), Format.JAR);
-               transformJar(jarFile,destJar);
+                transformJar(jarFile, destJar);
             });
         });
-        inputs.forEach(transformInput -> transformInput.getDirectoryInputs().forEach( directoryInput -> {
+        inputs.forEach(transformInput -> transformInput.getDirectoryInputs().forEach(directoryInput -> {
             File dstFile = outputProvider.getContentLocation(
                     directoryInput.getName(),
                     directoryInput.getContentTypes(),
@@ -109,28 +111,29 @@ class DetectionTransform extends HunterTransform {
     /**
      * 转化class文件
      * 注意：
-     *      这里只对InjectTest.class进行插桩，但是对于其他class要原封不动的拷贝过去，不然结果中就会缺少class
+     * 这里只对InjectTest.class进行插桩，但是对于其他class要原封不动的拷贝过去，不然结果中就会缺少class
+     *
      * @param inputFile
      * @param dstFile
      */
     private void transformSingleFile(File inputFile, File dstFile) {
         System.out.println("transformSingleFile-->" + inputFile.getAbsolutePath());
-        String path =  inputFile.getAbsolutePath();
+        String path = inputFile.getAbsolutePath();
         String[] arr = path.split(File.separator);
         // convert packageName to file path
         String packagePath = packageName.replace(".", File.separator);
-        System.out.println("package path"+ packagePath);
+        System.out.println("package path" + packagePath);
         System.out.println("input path" + inputFile.getAbsolutePath());
         if (inputFile.getAbsolutePath().contains(packagePath)) {
             System.out.println("");
-            if(first){
-                InjectApplication(packagePath,dstFile.getParent());
+            if (first) {
+                InjectApplication(packagePath, dstFile.getParent());
                 first = false;
             }
-                doInject(inputFile);
+            doInject(inputFile);
         }
         try {
-            FileUtils.copyFile(inputFile,dstFile,true);
+            FileUtils.copyFile(inputFile, dstFile, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,25 +142,26 @@ class DetectionTransform extends HunterTransform {
     /**
      * 转化jar
      * 对jar暂不做处理，所以直接拷贝
+     *
      * @param inputJarFile
      * @param dstFile
      */
     private void transformJar(File inputJarFile, File dstFile) {
         try {
-            FileUtils.copyFile(inputJarFile,dstFile);
+            FileUtils.copyFile(inputJarFile, dstFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    private void InjectApplication(String filePackageName,String dstPath) {
+    private void InjectApplication(String filePackageName, String dstPath) {
         try {
             System.out.println("dst: " + dstPath);
             System.out.println("pkg: " + filePackageName);
-            File Application = new File(dstPath  + File.separator +"DokitApplication.class");
+            File Application = new File(dstPath + File.separator + "DokitApplication.class");
             FileUtils.touch(Application);
-            System.out.println("add class: "  + Application.getAbsolutePath());
+            System.out.println("add class: " + Application.getAbsolutePath());
             System.out.println();
             ApplicationGenerator.createClass(Application, filePackageName);
         } catch (IOException e) {
@@ -167,11 +171,11 @@ class DetectionTransform extends HunterTransform {
         }
     }
 
-    private  void doInject(File inputFile) {
+    private void doInject(File inputFile) {
         try {
             InputStream inputStream = new FileInputStream(inputFile);
             ClassReader reader = new ClassReader(inputStream);
-            ClassWriter writer = new ClassWriter(reader,ClassWriter.COMPUTE_MAXS);
+            ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
             PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();

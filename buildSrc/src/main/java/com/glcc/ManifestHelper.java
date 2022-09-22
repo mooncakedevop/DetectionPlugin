@@ -55,7 +55,7 @@ public class ManifestHelper {
     }
 
     public List<String> getActivities() {
-        if(this.activities != null) return this.activities;
+        if (this.activities != null) return this.activities;
         // get activities
         NodeList activityList = doc.getElementsByTagName("activity");
         this.activities = new ArrayList<>();

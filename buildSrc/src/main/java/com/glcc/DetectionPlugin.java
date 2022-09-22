@@ -8,7 +8,6 @@ import com.android.build.gradle.AppExtension;
 import java.util.Collections;
 
 public class DetectionPlugin implements Plugin<Project> {
-
     @Override
     public void apply(Project project) {
         AppExtension appExtension = (AppExtension) project.getProperties().get("android");
