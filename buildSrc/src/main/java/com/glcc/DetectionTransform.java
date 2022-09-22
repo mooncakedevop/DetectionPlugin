@@ -10,16 +10,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Objects;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import javassist.bytecode.BadBytecode;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.CodeIterator;
 
 class DetectionTransform extends HunterTransform {
     private Project project;
@@ -60,6 +53,7 @@ class DetectionTransform extends HunterTransform {
         scanPermission();
         HashMap<String, String> map = scanLib();
         if (map !=null) System.out.println("*******ScanLib finish*******\n");
+        Collection<TransformInput> inputs =  transformInvocation.getInputs();
         //copy jar
         transformInvocation.getInputs().forEach( transformInput -> {
             transformInput.getJarInputs().forEach(jarInput -> {
@@ -67,66 +61,105 @@ class DetectionTransform extends HunterTransform {
                 File destJar = outputProvider.getContentLocation(jarInput.getName(),
                         jarInput.getContentTypes(),
                         jarInput.getScopes(), Format.JAR);
-                try {
-                    FileUtils.copyFile(jarFile, destJar);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+               transformJar(jarFile,destJar);
             });
         });
+        inputs.forEach(transformInput -> transformInput.getDirectoryInputs().forEach( directoryInput -> {
+            File dstFile = outputProvider.getContentLocation(
+                    directoryInput.getName(),
+                    directoryInput.getContentTypes(),
+                    directoryInput.getScopes(),
+                    Format.DIRECTORY);
+            // 执行转化整个目录
+            transformDir(directoryInput.getFile(), dstFile);
 
-        transformInvocation.getInputs().forEach(input -> {
+        }));
 
-                    input.getDirectoryInputs().forEach(directoryInput -> {
-                        String path = directoryInput.getFile().getAbsolutePath();
-                        System.out.println("Privacy detection plugin is running\n");
-//
-                        inject(path, project,directoryInput ,outputProvider);
-                        File destDir = outputProvider.getContentLocation(directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
-                        try {
-                            FileUtils.copyDirectory(directoryInput.getFile(), destDir);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        System.out.println("\nPrivacy detection plugin scan end\n");
-//                        check(directoryInput.getFile());
-                    });
-                }
-                );
     }
-    public void inject(String path, Project project, DirectoryInput directoryInput, TransformOutputProvider outputProvider){
+
+    private void transformDir(File inputDir, File dstDir) {
         try {
-
-            File dirs = new File(path);
-            for (File dir: Objects.requireNonNull(dirs.listFiles())){
-
-                if (dir.getName().contains("com")){
-
-                    if(first){
-                        InjectApplication(dir,directoryInput, outputProvider);
-                        first = false;
-                    }
-                    Arrays.stream(checkFiles(dir)).forEach(file -> {
-                        if (file.getName().endsWith(".class") && !isExclude(file.getName())) {
-                            try {
-                                doInject(project, file, path,directoryInput ,outputProvider);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                }
+            if (dstDir.exists()) {
+                FileUtils.forceDelete(dstDir);
             }
+            FileUtils.forceMkdir(dstDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        } catch (Exception e) {
+        String inputDirPath = inputDir.getAbsolutePath();
+        String dstDirPath = dstDir.getAbsolutePath();
+        File[] files = inputDir.listFiles();
+        for (File file : files) {
+            System.out.println("transformDir-->" + file.getAbsolutePath());
+            String dstFilePath = file.getAbsolutePath();
+            dstFilePath = dstFilePath.replace(inputDirPath, dstDirPath);
+            File dstFile = new File(dstFilePath);
+            if (file.isDirectory()) {
+                System.out.println("isDirectory-->" + file.getAbsolutePath());
+                // 递归
+                transformDir(file, dstFile);
+            } else if (file.isFile()) {
+                // 转化单个class文件
+                transformSingleFile(file, dstFile);
+            }
+        }
+    }
+
+    /**
+     * 转化class文件
+     * 注意：
+     *      这里只对InjectTest.class进行插桩，但是对于其他class要原封不动的拷贝过去，不然结果中就会缺少class
+     * @param inputFile
+     * @param dstFile
+     */
+    private void transformSingleFile(File inputFile, File dstFile) {
+        System.out.println("transformSingleFile-->" + inputFile.getAbsolutePath());
+        String path =  inputFile.getAbsolutePath();
+        String[] arr = path.split(File.separator);
+        // convert packageName to file path
+        String packagePath = packageName.replace(".", File.separator);
+        System.out.println("package path"+ packagePath);
+        System.out.println("input path" + inputFile.getAbsolutePath());
+        if (inputFile.getAbsolutePath().contains(packagePath)) {
+            System.out.println("");
+            if(first){
+                InjectApplication(packagePath,dstFile.getParent());
+                first = false;
+            }
+                doInject(inputFile);
+        }
+        try {
+            FileUtils.copyFile(inputFile,dstFile,true);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void InjectApplication(File dir,DirectoryInput directoryInput, TransformOutputProvider outputProvider) {
+    /**
+     * 转化jar
+     * 对jar暂不做处理，所以直接拷贝
+     * @param inputJarFile
+     * @param dstFile
+     */
+    private void transformJar(File inputJarFile, File dstFile) {
         try {
-            ApplicationGenerator.createClass(dir, directoryInput, outputProvider);
-            System.out.println("111");
+            FileUtils.copyFile(inputJarFile,dstFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void InjectApplication(String filePackageName,String dstPath) {
+        try {
+            System.out.println("dst: " + dstPath);
+            System.out.println("pkg: " + filePackageName);
+            File Application = new File(dstPath  + File.separator +"DokitApplication.class");
+            FileUtils.touch(Application);
+            System.out.println("add class: "  + Application.getAbsolutePath());
+            System.out.println();
+            ApplicationGenerator.createClass(Application, filePackageName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -134,65 +167,22 @@ class DetectionTransform extends HunterTransform {
         }
     }
 
-    private  void doInject(Project project, File clsFile, String originPath, DirectoryInput directoryInput, TransformOutputProvider outputProvider) throws NotFoundException, CannotCompileException {
+    private  void doInject(File inputFile) {
         try {
-            InputStream inputStream = new FileInputStream(clsFile);
+            InputStream inputStream = new FileInputStream(inputFile);
             ClassReader reader = new ClassReader(inputStream);
             ClassWriter writer = new ClassWriter(reader,ClassWriter.COMPUTE_MAXS);
-            PrivacyVisitor visitor = new PrivacyVisitor(writer, clsFile.getName());
+            PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName());
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
-            FileOutputStream fos = new FileOutputStream(clsFile);
+            FileOutputStream fos = new FileOutputStream(inputFile);
             fos.write(code);
             fos.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public File[] checkFiles(File file){
-        File[] files = file.listFiles();
-        if (!files[0].isDirectory()){
-            return files;
-        }else{
-            return checkFiles(files[0]);
-        }
 
-    }
-    public boolean isExclude(String name){
-        return name.equals("R.class");
-    }
-    public void check(File file){
-        if(file.isDirectory()){
-            File[] files = file.listFiles();
-            Arrays.stream(files).forEach(
-                    this::check
-            );
-            return;
-        }
-        String fileName = file.getName();
-        DataInputStream dis = null;
-        try {
-            dis = new DataInputStream(new FileInputStream(file));
-            ClassFile classFile = new ClassFile(dis);
-            classFile.getMethods().forEach(methodInfo -> {
-                CodeAttribute code = methodInfo.getCodeAttribute();
-                CodeIterator itor = code.iterator();
 
-                while (itor.hasNext()){
-                    int index = 0;
-                    try {
-                        index = itor.next();
-                    } catch (BadBytecode badBytecode) {
-                        badBytecode.printStackTrace();
-                    }
-                    int op = itor.byteAt(index);
-                }
-
-            });
-
-        } catch (Exception e) {
-            System.out.println("transform fail");
-            e.printStackTrace();
-        }
-    }
 }

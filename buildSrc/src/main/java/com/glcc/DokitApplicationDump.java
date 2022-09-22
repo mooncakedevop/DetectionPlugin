@@ -11,7 +11,7 @@ import org.objectweb.asm.RecordComponentVisitor;
 public class DokitApplicationDump implements Opcodes {
 
     public static byte[] dump(String name) throws Exception {
-
+        name  = name + "/DokitApplication";
         ClassWriter classWriter = new ClassWriter(0);
         FieldVisitor fieldVisitor;
         RecordComponentVisitor recordComponentVisitor;
