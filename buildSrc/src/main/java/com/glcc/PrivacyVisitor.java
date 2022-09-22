@@ -103,7 +103,7 @@ class MyAdapter extends AdviceAdapter {
 
     public void inject() {
         String packagePath = this.packageName.replace(".","/");
-        mv.visitMethodInsn(INVOKESTATIC, "com/detectionplugin/DokitApplication", "LogStackTrace", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, packagePath + "/DokitApplication", "LogStackTrace", "()V", false);
         mv.visitCode();
     }
 }
