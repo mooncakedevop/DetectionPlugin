@@ -16,17 +16,19 @@ import java.util.List;
 
 public class PrivacyVisitor extends ClassVisitor {
     private String className;
+    private String packageName;
 
-    public PrivacyVisitor(ClassVisitor classVisitor, String name) {
+    public PrivacyVisitor(ClassVisitor classVisitor, String className, String packageName) {
         super(Opcodes.ASM5, classVisitor);
-        className = name;
+        this.className = className;
+        this.packageName = packageName;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        return new MyAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className);
+        return new MyAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, packageName);
     }
 
     @Override
@@ -48,10 +50,12 @@ class MyAdapter extends AdviceAdapter {
      */
     private List<String> res = new LinkedList<>();
     private String className;
+    private String packageName;
 
-    protected MyAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className) {
+    protected MyAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String packageName) {
         super(api, mv, access, name, desc);
         this.className = className;
+        this.packageName = packageName;
         readRules();
     }
 
@@ -98,6 +102,7 @@ class MyAdapter extends AdviceAdapter {
     }
 
     public void inject() {
+        String packagePath = this.packageName.replace(".","/");
         mv.visitMethodInsn(INVOKESTATIC, "com/detectionplugin/DokitApplication", "LogStackTrace", "()V", false);
         mv.visitCode();
     }

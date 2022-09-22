@@ -176,7 +176,7 @@ class DetectionTransform extends HunterTransform {
             InputStream inputStream = new FileInputStream(inputFile);
             ClassReader reader = new ClassReader(inputStream);
             ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
-            PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName());
+            PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName(), packageName);
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
             FileOutputStream fos = new FileOutputStream(inputFile);
