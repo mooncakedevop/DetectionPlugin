@@ -1,6 +1,10 @@
 package com.glcc;
 
 import com.android.build.api.transform.*;
+import com.glcc.bean.AppInfo;
+import com.glcc.bean.DetectionPoint;
+import com.glcc.bean.PrivacyRule;
+import com.glcc.bean.ScanResult;
 import com.quinn.hunter.transform.HunterTransform;
 import com.quinn.hunter.transform.RunVariant;
 
@@ -19,6 +23,10 @@ class DetectionTransform extends HunterTransform {
     private String packageName;
     private boolean first = true;
 
+    private ScanResult result = new ScanResult();
+    AppInfo appInfo = new AppInfo();
+
+
     public DetectionTransform(Project project) {
         super(project);
         this.project = project;
@@ -29,13 +37,22 @@ class DetectionTransform extends HunterTransform {
         return super.getRunVariant();
     }
 
-    public void scanPermission() {
+    public ManifestHelper scanPermission() {
         System.out.println("*******ScanPermission start*******");
         ManifestHelper m = new ManifestHelper(project.getProjectDir() + "/src/main/AndroidManifest.xml");
         System.out.println("packageName: " + m.getPackageName());
-        packageName = m.getPackageName();
-        m.getPermissions().forEach(permission -> System.out.println(permission));
-        System.out.println("*******ScanPermission finish*******\n");
+        appInfo.setPackageName(m.getPackageName());
+        appInfo.setPluginVersion("0.1.0");
+        for(String permission :m.getPermissions()) {
+            DetectionPoint point = new DetectionPoint();
+            PrivacyRule rule = new PrivacyRule();
+            rule.setName("permission");
+            rule.setCategory("permission");
+            rule.setPattern(permission);
+            point.setRule(rule);
+            result.getPoints().add(point);
+        }
+        return m;
     }
 
     public HashMap<String, String> scanLib() {
@@ -52,12 +69,14 @@ class DetectionTransform extends HunterTransform {
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
-        scanPermission();
+        ManifestHelper m = scanPermission();
+        this.packageName = m.getPackageName();
         HashMap<String, String> map = scanLib();
         if (map != null) System.out.println("*******ScanLib finish*******\n");
+        result.setLibs(map);
         Collection<TransformInput> inputs = transformInvocation.getInputs();
         //copy jar
-        transformInvocation.getInputs().forEach(transformInput -> {
+        inputs.forEach(transformInput -> {
             transformInput.getJarInputs().forEach(jarInput -> {
                 File jarFile = jarInput.getFile();
                 File destJar = outputProvider.getContentLocation(jarInput.getName(),

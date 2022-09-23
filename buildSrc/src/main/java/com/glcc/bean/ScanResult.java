@@ -1,9 +1,20 @@
 package com.glcc.bean;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 public class ScanResult {
     private AppInfo profile;
     private int timeUsed;
-    private DetectionPoint point;
+    private List<DetectionPoint> points;
+
+    private Map<String, String> libs;
+
+    public ScanResult() {
+        points = new LinkedList<>();
+    }
 
     public AppInfo getProfile() {
         return profile;
@@ -21,12 +32,20 @@ public class ScanResult {
         this.timeUsed = timeUsed;
     }
 
-    public DetectionPoint getPoint() {
-        return point;
+    public List<DetectionPoint> getPoints() {
+        return this.points;
     }
 
-    public void setPoint(DetectionPoint point) {
-        this.point = point;
+    public void setPoints(List<DetectionPoint> points) {
+        this.points = points;
+    }
+
+    public Map<String, String> getLibs() {
+        return libs;
+    }
+
+    public void setLibs(Map<String, String> libs) {
+        this.libs = libs;
     }
 }
 
