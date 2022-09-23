@@ -1,5 +1,9 @@
 package com.glcc;
 
+import com.glcc.bean.DetectionPoint;
+import com.glcc.bean.InvokeStmt;
+import com.glcc.bean.PrivacyRule;
+import com.glcc.bean.ScanResult;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -10,25 +14,28 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 public class PrivacyVisitor extends ClassVisitor {
     private String className;
     private String packageName;
+    ScanResult result = new ScanResult();
 
-    public PrivacyVisitor(ClassVisitor classVisitor, String className, String packageName) {
+    public PrivacyVisitor(ClassVisitor classVisitor, String className, String packageName, ScanResult result) {
         super(Opcodes.ASM5, classVisitor);
         this.className = className;
         this.packageName = packageName;
+        this.result = result;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        return new MyAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, packageName);
+        return new MyAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, packageName, result);
     }
 
     @Override
@@ -51,11 +58,15 @@ class MyAdapter extends AdviceAdapter {
     private List<String> res = new LinkedList<>();
     private String className;
     private String packageName;
+    private String methodname;
+    private ScanResult result;
 
-    protected MyAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String packageName) {
+    protected MyAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String packageName, ScanResult result) {
         super(api, mv, access, name, desc);
+        this.methodname = name;
         this.className = className;
         this.packageName = packageName;
+        this.result = result;
         readRules();
     }
 
@@ -85,10 +96,33 @@ class MyAdapter extends AdviceAdapter {
         if (isPrivacy(sig)) {
 //            new InjectVisitor(Opcodes.ASM5,mv);
             System.out.println("class:" + className);
+            PrivacyRule rule = new PrivacyRule();
+            rule.setPattern(sig);
+            rule.setCategory("api");
+            DetectionPoint point = new DetectionPoint();
+            InvokeStmt stmt = new InvokeStmt();
+            stmt.setPackageName(packageName);
+            stmt.setInvokeClass(className);
+            stmt.setInvokeMethod(methodname);
+            checkThird(result, stmt);
+            point.setRule(rule);
+            point.setInvokeStmt(stmt);
+            result.getPoints().add(point);
             inject();
 
         }
         super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    public void checkThird(ScanResult result, InvokeStmt stmt) {
+        Map<String, String> libs = result.getLibs();
+        for (Map.Entry<String, String> lib : libs.entrySet()) {
+            if (lib.getKey().equals(packageName)) {
+                stmt.setThird(true);
+                stmt.setLibName(lib.getKey());
+                stmt.setLibVersion(lib.getValue());
+            }
+        }
     }
 
     public boolean isPrivacy(String sig) {
@@ -102,7 +136,7 @@ class MyAdapter extends AdviceAdapter {
     }
 
     public void inject() {
-        String packagePath = this.packageName.replace(".","/");
+        String packagePath = this.packageName.replace(".", "/");
         mv.visitMethodInsn(INVOKESTATIC, packagePath + "/DokitApplication", "LogStackTrace", "()V", false);
         mv.visitCode();
     }

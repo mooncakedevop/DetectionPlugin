@@ -1,11 +1,20 @@
 package com.glcc.bean;
 
-class InvokeStmt {
+public class InvokeStmt {
+    String packageName;
     String InvokeMethod;
     String invokeClass;
     boolean isThird;
     String libName;
     String libVersion;
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
 
     public String getInvokeMethod() {
         return InvokeMethod;

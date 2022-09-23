@@ -1,5 +1,6 @@
 package com.glcc;
 
+import com.alibaba.fastjson2.JSON;
 import com.android.build.api.transform.*;
 import com.glcc.bean.AppInfo;
 import com.glcc.bean.DetectionPoint;
@@ -16,7 +17,6 @@ import org.objectweb.asm.ClassWriter;
 import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
-
 
 class DetectionTransform extends HunterTransform {
     private Project project;
@@ -43,7 +43,7 @@ class DetectionTransform extends HunterTransform {
         System.out.println("packageName: " + m.getPackageName());
         appInfo.setPackageName(m.getPackageName());
         appInfo.setPluginVersion("0.1.0");
-        for(String permission :m.getPermissions()) {
+        for (String permission : m.getPermissions()) {
             DetectionPoint point = new DetectionPoint();
             PrivacyRule rule = new PrivacyRule();
             rule.setName("permission");
@@ -68,6 +68,8 @@ class DetectionTransform extends HunterTransform {
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+
+        long start = System.currentTimeMillis();
         TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
         ManifestHelper m = scanPermission();
         this.packageName = m.getPackageName();
@@ -95,6 +97,11 @@ class DetectionTransform extends HunterTransform {
             transformDir(directoryInput.getFile(), dstFile);
 
         }));
+        result.setTimeUsed((int) (System.currentTimeMillis() - start));
+        String str = JSON.toJSONString(result);
+
+        System.out.println("json output: " + str);
+
 
     }
 
@@ -195,7 +202,7 @@ class DetectionTransform extends HunterTransform {
             InputStream inputStream = new FileInputStream(inputFile);
             ClassReader reader = new ClassReader(inputStream);
             ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
-            PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName(), packageName);
+            PrivacyVisitor visitor = new PrivacyVisitor(writer, inputFile.getName(), packageName, result);
             reader.accept(visitor, ClassReader.EXPAND_FRAMES);
             byte[] code = writer.toByteArray();
             FileOutputStream fos = new FileOutputStream(inputFile);
