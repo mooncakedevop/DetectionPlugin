@@ -88,7 +88,6 @@ class DetectionTransform extends HunterTransform {
         //copy jar
         inputs.forEach(transformInput -> {
             transformInput.getJarInputs().forEach(jarInput -> {
-                File jarFile = jarInput.getFile();
                 File destJar = outputProvider.getContentLocation(jarInput.getName(),
                         jarInput.getContentTypes(),
                         jarInput.getScopes(), Format.JAR);
@@ -98,9 +97,6 @@ class DetectionTransform extends HunterTransform {
                     throw new RuntimeException(e);
                 }
 
-//                if (isJarInvalid(jarInput)) {
-//                    transformJar(jarFile, destJar);
-//                }
             });
         });
         inputs.forEach(transformInput -> transformInput.getDirectoryInputs().forEach(directoryInput -> {
@@ -119,10 +115,6 @@ class DetectionTransform extends HunterTransform {
         System.out.println("json output: " + str);
 
 
-    }
-
-    private boolean isJarInvalid(JarInput jarInput) {
-        return false;
     }
 
     private void transformDir(File inputDir, File dstDir) {
@@ -228,7 +220,7 @@ class DetectionTransform extends HunterTransform {
                 String entryName = jarEntry.getName();
                 ZipEntry zipEntry = new ZipEntry(entryName);
                 InputStream inputStream = jarFile.getInputStream(jarEntry);
-                if (entryName.endsWith(".DSA") || entryName.endsWith(".SF"))continue;
+                if (entryName.endsWith(".DSA") || entryName.endsWith(".SF")) continue;
                 //需要插桩class 根据自己的需求来-------------
                 if (!entryName.contains("android") && (entryName.endsWith(".class"))) {
                     System.out.println("entry: " + entryName);
@@ -254,23 +246,6 @@ class DetectionTransform extends HunterTransform {
             tmpFile.delete();
         }
     }
-
-
-    private void enumerateJarFile(File inputJarFile) {
-        try {
-            JarFile jar = new JarFile(inputJarFile.getAbsolutePath());
-            Enumeration<JarEntry> allElementsInJar = jar.entries();
-            while (allElementsInJar != null && allElementsInJar.hasMoreElements()) {
-                JarEntry entry = (JarEntry) allElementsInJar.nextElement();
-                if (entry.getName().toLowerCase().endsWith(".class")) {
-
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     private void InjectApplication(String filePackageName, String dstPath) {
         try {
