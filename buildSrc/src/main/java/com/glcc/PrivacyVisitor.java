@@ -91,7 +91,7 @@ class MyAdapter extends AdviceAdapter {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-
+        System.out.println("method: " + methodname);
         String sig = owner.replace("/", ".") + "." + name;
         if (isPrivacy(sig)) {
 //            new InjectVisitor(Opcodes.ASM5,mv);
@@ -108,7 +108,7 @@ class MyAdapter extends AdviceAdapter {
             point.setRule(rule);
             point.setInvokeStmt(stmt);
             result.getPoints().add(point);
-            inject();
+//            inject();
 
         }
         super.visitMethodInsn(opcode, owner, name, desc, itf);

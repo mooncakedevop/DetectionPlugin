@@ -9,14 +9,22 @@ import com.glcc.bean.ScanResult;
 import com.quinn.hunter.transform.HunterTransform;
 import com.quinn.hunter.transform.RunVariant;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
 class DetectionTransform extends HunterTransform {
     private Project project;
@@ -84,7 +92,15 @@ class DetectionTransform extends HunterTransform {
                 File destJar = outputProvider.getContentLocation(jarInput.getName(),
                         jarInput.getContentTypes(),
                         jarInput.getScopes(), Format.JAR);
-                transformJar(jarFile, destJar);
+                try {
+                    handJarInput(jarInput, destJar);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+//                if (isJarInvalid(jarInput)) {
+//                    transformJar(jarFile, destJar);
+//                }
             });
         });
         inputs.forEach(transformInput -> transformInput.getDirectoryInputs().forEach(directoryInput -> {
@@ -103,6 +119,10 @@ class DetectionTransform extends HunterTransform {
         System.out.println("json output: " + str);
 
 
+    }
+
+    private boolean isJarInvalid(JarInput jarInput) {
+        return false;
     }
 
     private void transformDir(File inputDir, File dstDir) {
@@ -177,6 +197,77 @@ class DetectionTransform extends HunterTransform {
             FileUtils.copyFile(inputJarFile, dstFile);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void handJarInput(JarInput jarInput, File destFile) throws IOException {
+        System.out.println("jarInput: " + jarInput.getFile().getName());
+        System.out.println("path:" + jarInput.getFile().getAbsolutePath());
+        System.out.println(jarInput.getFile().getAbsolutePath().endsWith(".jar"));
+        if (jarInput.getFile().getAbsolutePath().endsWith(".jar")) {
+            //重名名输出文件,因为可能同名,会覆盖
+            String jarName = jarInput.getName();
+            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
+            if (jarName.endsWith(".jar")) {
+                jarName = jarName.substring(0, jarName.length() - 4);
+            }
+            System.out.println(jarName);
+            JarFile jarFile = new JarFile(jarInput.getFile().getAbsolutePath());
+            Enumeration enumeration = jarFile.entries();
+            File tmpFile = new File(jarInput.getFile().getParent() + File.separator + "classes_temp.jar");
+            //避免上次的缓存被重复插入
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            System.out.println(enumeration.hasMoreElements());
+            System.out.println(tmpFile.getAbsolutePath());
+            JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(tmpFile));
+            //用于保存
+            while (enumeration.hasMoreElements()) {
+                JarEntry jarEntry = (JarEntry) enumeration.nextElement();
+                String entryName = jarEntry.getName();
+                ZipEntry zipEntry = new ZipEntry(entryName);
+                InputStream inputStream = jarFile.getInputStream(jarEntry);
+                if (entryName.endsWith(".DSA") || entryName.endsWith(".SF"))continue;
+                //需要插桩class 根据自己的需求来-------------
+                if (!entryName.contains("android") && (entryName.endsWith(".class"))) {
+                    System.out.println("entry: " + entryName);
+                    jarOutputStream.putNextEntry(zipEntry);
+                    ClassReader classReader = new ClassReader(IOUtils.toByteArray(inputStream));
+                    ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
+                    //创建类访问器   并交给它去处理
+                    ClassVisitor cv = new ScanVisitor(classWriter, entryName, entryName, result);
+                    classReader.accept(cv, ClassReader.EXPAND_FRAMES);
+                    byte[] code = classWriter.toByteArray();
+                    jarOutputStream.write(code);
+                } else {
+                    jarOutputStream.putNextEntry(zipEntry);
+                    jarOutputStream.write(IOUtils.toByteArray(inputStream));
+                }
+                jarOutputStream.closeEntry();
+            }
+            //结束
+            jarOutputStream.close();
+            jarFile.close();
+            //获取output目录
+            FileUtils.copyFile(tmpFile, destFile);
+            tmpFile.delete();
+        }
+    }
+
+
+    private void enumerateJarFile(File inputJarFile) {
+        try {
+            JarFile jar = new JarFile(inputJarFile.getAbsolutePath());
+            Enumeration<JarEntry> allElementsInJar = jar.entries();
+            while (allElementsInJar != null && allElementsInJar.hasMoreElements()) {
+                JarEntry entry = (JarEntry) allElementsInJar.nextElement();
+                if (entry.getName().toLowerCase().endsWith(".class")) {
+
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
