@@ -24,7 +24,7 @@ public class ScanVisitor extends ClassVisitor {
     ScanResult result = new ScanResult();
 
     public ScanVisitor(ClassVisitor classVisitor, String className, String packageName, ScanResult result) {
-        super(Opcodes.ASM7, classVisitor);
+        super(Opcodes.ASM5, classVisitor);
         this.className = className;
         this.packageName = packageName;
         this.result = result;
@@ -102,7 +102,7 @@ class ScanAdapter extends AdviceAdapter {
             stmt.setPackageName(packageName);
             stmt.setInvokeClass(className);
             stmt.setInvokeMethod(methodname);
-//            checkThird(result, stmt);
+            checkThird(result, stmt);
             point.setRule(rule);
             point.setInvokeStmt(stmt);
             result.getPoints().add(point);
