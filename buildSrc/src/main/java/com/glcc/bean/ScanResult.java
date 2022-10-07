@@ -1,6 +1,5 @@
 package com.glcc.bean;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,7 @@ public class ScanResult {
     private AppInfo profile;
     private int timeUsed;
     private List<DetectionPoint> points;
-
+    private List<Permission> permissions;
     private Map<String, String> libs;
 
     public ScanResult() {
@@ -38,6 +37,14 @@ public class ScanResult {
 
     public void setPoints(List<DetectionPoint> points) {
         this.points = points;
+    }
+
+    public List<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
     }
 
     public Map<String, String> getLibs() {

@@ -1,0 +1,21 @@
+{
+  "name": "permission",
+  "config": [
+    {
+      "name": "获取粗略位置",
+      "pattern": "android.permission.ACCESS_COARSE_LOCATION",
+      "desc": "允许App获取粗略位置",
+      "sensitive": true
+    },{
+      "name": "写外部存储",
+      "pattern": "android.permission.WRITE_EXTERNAL_STORAGE",
+      "desc": "允许程序写入外部存储",
+      "sensitive": true
+    },{
+      "name": "读外部存储",
+      "pattern": "android.permission.READ_EXTERNAL_STORAGE",
+      "desc": "允许应用程序读取设备外部存储空间的文件",
+      "sensitive": true
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 package com.glcc;
 
+import com.glcc.bean.Permission;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -10,11 +11,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ManifestHelper {
     private Document doc;
     private String pkgName;
-    private List<String> permissions;
+    private List<Permission> permissions;
     private List<String> activities;
 
     public ManifestHelper(String xmlPath) {
@@ -42,15 +44,28 @@ public class ManifestHelper {
         return this.pkgName;
     }
 
-    public List<String> getPermissions() {
+    public List<Permission> getPermissions() {
         if (this.permissions != null) return permissions;
         //get permissions
         NodeList permissionList = this.doc.getElementsByTagName("uses-permission");
         this.permissions = new ArrayList<>();
+        Map<String, Permission> map = Util.readPermissionConfig();
+
         for (int i = 0; i < permissionList.getLength(); i++) {
             Node permission = permissionList.item(i);
-            this.permissions.add((permission.getAttributes()).item(0).getNodeValue());
+            String key = permission.getAttributes().item(0).getNodeValue();
+            Permission p;
+            if(map.containsKey(key)){
+                p = map.get(key);
+                System.out.println(key);
+            } else {
+                p = new Permission();
+                p.setName("未知权限");
+                p.setPattern(key);
+            }
+            this.permissions.add(p);
         }
+
         return this.permissions;
     }
 

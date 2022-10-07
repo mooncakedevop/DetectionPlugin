@@ -2,10 +2,7 @@ package com.glcc;
 
 import com.alibaba.fastjson2.JSON;
 import com.android.build.api.transform.*;
-import com.glcc.bean.AppInfo;
-import com.glcc.bean.DetectionPoint;
-import com.glcc.bean.PrivacyRule;
-import com.glcc.bean.ScanResult;
+import com.glcc.bean.*;
 import com.quinn.hunter.transform.HunterTransform;
 import com.quinn.hunter.transform.RunVariant;
 
@@ -51,15 +48,11 @@ class DetectionTransform extends HunterTransform {
         System.out.println("packageName: " + m.getPackageName());
         appInfo.setPackageName(m.getPackageName());
         appInfo.setPluginVersion("0.1.0");
-        for (String permission : m.getPermissions()) {
-            DetectionPoint point = new DetectionPoint();
-            PrivacyRule rule = new PrivacyRule();
-            rule.setName("permission");
-            rule.setCategory("permission");
-            rule.setPattern(permission);
-            point.setRule(rule);
-            result.getPoints().add(point);
+        System.out.println("permissions : ");
+        for (Permission p : m.getPermissions()){
+            System.out.println(p.getName());
         }
+        result.setPermissions(m.getPermissions());
         return m;
     }
 
