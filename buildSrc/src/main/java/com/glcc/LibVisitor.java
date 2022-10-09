@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ScanVisitor extends ClassVisitor {
+public class LibVisitor extends ClassVisitor {
     private String className;
     private String libName;
     ScanResult result = new ScanResult();
 
-    public ScanVisitor(ClassVisitor classVisitor, String className, String libName, ScanResult result) {
+    public LibVisitor(ClassVisitor classVisitor, String className, String libName, ScanResult result) {
         super(Opcodes.ASM5, classVisitor);
         this.className = className;
         this.libName = libName;
@@ -33,7 +33,7 @@ public class ScanVisitor extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        return new ScanAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, libName, result);
+        return new LibAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, libName, result);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ScanVisitor extends ClassVisitor {
     }
 }
 
-class ScanAdapter extends AdviceAdapter {
+class LibAdapter extends AdviceAdapter {
     /**
      * Creates a new {@link AdviceAdapter}.
      *
@@ -59,7 +59,7 @@ class ScanAdapter extends AdviceAdapter {
     private String methodname;
     private ScanResult result;
 
-    protected ScanAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String libName, ScanResult result) {
+    protected LibAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String libName, ScanResult result) {
         super(api, mv, access, name, desc);
         this.methodname = name;
         this.className = className;

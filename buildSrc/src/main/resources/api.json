@@ -1,10 +1,10 @@
 {
-  "name": "permission",
+  "name": "api",
   "config": [
     {
       "name": "安装应用",
       "pattern": "android.content.pm.PackageManager.getInstalledPackages",
-      "desc": "允许App获取粗略位置",
+      "desc": "安装应用",
       "sensitive": true
     },{
       "name": "获取Mac地址",

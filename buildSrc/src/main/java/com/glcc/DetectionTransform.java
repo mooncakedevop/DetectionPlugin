@@ -241,7 +241,7 @@ class DetectionTransform extends HunterTransform {
                     ClassReader classReader = new ClassReader(IOUtils.toByteArray(inputStream));
                     ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
                     //创建类访问器   并交给它去处理
-                    ClassVisitor cv = new ScanVisitor(classWriter, entryName, key, result);
+                    ClassVisitor cv = new LibVisitor(classWriter, entryName, key, result);
                     classReader.accept(cv, ClassReader.EXPAND_FRAMES);
                     byte[] code = classWriter.toByteArray();
                     jarOutputStream.write(code);
