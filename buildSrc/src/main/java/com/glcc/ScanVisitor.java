@@ -20,20 +20,20 @@ import java.util.Map;
 
 public class ScanVisitor extends ClassVisitor {
     private String className;
-    private String packageName;
+    private String libName;
     ScanResult result = new ScanResult();
 
-    public ScanVisitor(ClassVisitor classVisitor, String className, String packageName, ScanResult result) {
+    public ScanVisitor(ClassVisitor classVisitor, String className, String libName, ScanResult result) {
         super(Opcodes.ASM5, classVisitor);
         this.className = className;
-        this.packageName = packageName;
+        this.libName = libName;
         this.result = result;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        return new ScanAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, packageName, result);
+        return new ScanAdapter(Opcodes.ASM5, methodVisitor, access, name, desc, className, libName, result);
     }
 
     @Override
@@ -55,15 +55,15 @@ class ScanAdapter extends AdviceAdapter {
      */
     private List<String> res = new LinkedList<>();
     private String className;
-    private String packageName;
+    private String libName;
     private String methodname;
     private ScanResult result;
 
-    protected ScanAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String packageName, ScanResult result) {
+    protected ScanAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, String libName, ScanResult result) {
         super(api, mv, access, name, desc);
         this.methodname = name;
         this.className = className;
-        this.packageName = packageName;
+        this.libName = libName;
         this.result = result;
         readRules();
     }
@@ -99,9 +99,10 @@ class ScanAdapter extends AdviceAdapter {
             rule.setCategory("api");
             DetectionPoint point = new DetectionPoint();
             InvokeStmt stmt = new InvokeStmt();
-            stmt.setPackageName(packageName);
+            stmt.setPackageName(libName);
             stmt.setInvokeClass(className);
             stmt.setInvokeMethod(methodname);
+            stmt.setThird(true);
             checkThird(result, stmt);
             point.setRule(rule);
             point.setInvokeStmt(stmt);
@@ -113,12 +114,10 @@ class ScanAdapter extends AdviceAdapter {
 
     public void checkThird(ScanResult result, InvokeStmt stmt) {
         Map<String, String> libs = result.getLibs();
-        for (Map.Entry<String, String> lib : libs.entrySet()) {
-            if (lib.getKey().equals(packageName)) {
-                stmt.setThird(true);
-                stmt.setLibName(lib.getKey());
-                stmt.setLibVersion(lib.getValue());
-            }
+        if (libs.containsKey(libs)){
+            stmt.setThird(true);
+            stmt.setLibName(libName);
+            stmt.setLibVersion(libs.get(libName));
         }
     }
 

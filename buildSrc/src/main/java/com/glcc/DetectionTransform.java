@@ -18,9 +18,11 @@ import java.io.*;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 
 class DetectionTransform extends HunterTransform {
@@ -30,6 +32,8 @@ class DetectionTransform extends HunterTransform {
 
     private ScanResult result = new ScanResult();
     AppInfo appInfo = new AppInfo();
+
+    Map<String, String> libs;
 
 
     public DetectionTransform(Project project) {
@@ -49,21 +53,20 @@ class DetectionTransform extends HunterTransform {
         appInfo.setPackageName(m.getPackageName());
         appInfo.setPluginVersion("0.1.0");
         System.out.println("permissions : ");
-        for (Permission p : m.getPermissions()){
+        for (Permission p : m.getPermissions()) {
             System.out.println(p.getName());
         }
         result.setPermissions(m.getPermissions());
         return m;
     }
 
-    public HashMap<String, String> scanLib() {
+    public void scanLib() {
         System.out.println("*******ScanLib start*******");
         BuildHelper b = new BuildHelper();
         try {
-            return b.readGradle(project.getProjectDir() + "/build.gradle");
+        libs =  b.readGradle(project.getProjectDir() + "/build.gradle");
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
@@ -74,9 +77,9 @@ class DetectionTransform extends HunterTransform {
         TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
         ManifestHelper m = scanPermission();
         this.packageName = m.getPackageName();
-        HashMap<String, String> map = scanLib();
-        if (map != null) System.out.println("*******ScanLib finish*******\n");
-        result.setLibs(map);
+        scanLib();
+        if (libs != null) System.out.println("*******ScanLib finish*******\n");
+        result.setLibs(libs);
         Collection<TransformInput> inputs = transformInvocation.getInputs();
         //copy jar
         inputs.forEach(transformInput -> {
@@ -192,10 +195,27 @@ class DetectionTransform extends HunterTransform {
         if (jarInput.getFile().getAbsolutePath().endsWith(".jar")) {
             //重名名输出文件,因为可能同名,会覆盖
             String jarName = jarInput.getName();
-            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
-            if (jarName.endsWith(".jar")) {
-                jarName = jarName.substring(0, jarName.length() - 4);
+            System.out.println(jarName);
+            String[] nameArr = jarName.split(":");
+            if (nameArr.length < 2) {
+                System.out.println("nameArr:" +  jarName);
+                FileUtils.copyFile(jarInput.getFile(), destFile);
+                return;
             }
+            String key = "";
+           for (int i = 0; i < nameArr.length-1; i++){
+               key += nameArr[i];
+           }
+            if (!libs.containsKey(key)){
+                System.out.println("lib key: " + key);
+                FileUtils.copyFile(jarInput.getFile(), destFile);
+                return;
+            }
+            System.out.println("pass name: "+ jarName);
+
+            System.out.println("jar name: " + jarName);
+            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
+            jarName = jarName.substring(0, jarName.length() - 4);
             System.out.println(jarName);
             JarFile jarFile = new JarFile(jarInput.getFile().getAbsolutePath());
             Enumeration enumeration = jarFile.entries();
@@ -221,7 +241,7 @@ class DetectionTransform extends HunterTransform {
                     ClassReader classReader = new ClassReader(IOUtils.toByteArray(inputStream));
                     ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
                     //创建类访问器   并交给它去处理
-                    ClassVisitor cv = new ScanVisitor(classWriter, entryName, entryName, result);
+                    ClassVisitor cv = new ScanVisitor(classWriter, entryName, key, result);
                     classReader.accept(cv, ClassReader.EXPAND_FRAMES);
                     byte[] code = classWriter.toByteArray();
                     jarOutputStream.write(code);

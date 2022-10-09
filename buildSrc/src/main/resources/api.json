@@ -1,0 +1,62 @@
+{
+  "name": "permission",
+  "config": [
+    {
+      "name": "安装应用",
+      "pattern": "android.content.pm.PackageManager.getInstalledPackages",
+      "desc": "允许App获取粗略位置",
+      "sensitive": true
+    },{
+      "name": "获取Mac地址",
+      "pattern": "android.net.wifi.WifiInfo.getMacAddress",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取Mac地址",
+      "pattern": "java.net.NetworkInterface.getHardwareAddress",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取Mac地址",
+      "pattern": "android.bluetooth.BluetoothAdapter.getAddress",
+      "desc": "",
+      "sensitive": true
+    },
+    {
+      "name": "获取IMEI",
+      "pattern": "android.telephony.TelephonyManager.getDeviceId",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取IMEI",
+      "pattern": "android.telephony.TelephonyManager.getImei",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取IMSI",
+      "pattern": "android.telephony.TelephonyManager.getSubscriberId",
+      "desc": "",
+      "sensitive": true
+    }, {
+      "name": "获取ICCID",
+      "pattern": "android.telephony.TelephonyManager.getSimSerialNumber",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取ICCID",
+      "pattern": "android.telephony.SubscriptionInfo.getIccId",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取Android ID",
+      "pattern": "android.provider.Settings$Secure.getString",
+      "desc": "",
+      "sensitive": true
+    },{
+      "name": "获取Wi-Fi列表",
+      "pattern": "android.net.wifi.WifiManager.getScanResults",
+      "desc": "",
+      "sensitive": true
+    }
+  ]
+}

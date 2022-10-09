@@ -6,16 +6,270 @@
       "pattern": "android.permission.ACCESS_COARSE_LOCATION",
       "desc": "允许App获取粗略位置",
       "sensitive": true
-    },{
+    },
+    {
+      "name": "获取精确位置",
+      "pattern": "android.permission.ACCESS_FINE_LOCATION",
+      "desc": "允许APP获取精确位置",
+      "sensitive": true
+    },
+    {
+      "name": "读取设备状态",
+      "pattern": "android.permission.READ_PHONE_STATE",
+      "desc": "允许应用读取手机状态，标识符等",
+      "sensitive": true
+    },
+    {
       "name": "写外部存储",
       "pattern": "android.permission.WRITE_EXTERNAL_STORAGE",
       "desc": "允许程序写入外部存储",
       "sensitive": true
-    },{
+    },
+    {
       "name": "读外部存储",
       "pattern": "android.permission.READ_EXTERNAL_STORAGE",
       "desc": "允许应用程序读取设备外部存储空间的文件",
       "sensitive": true
+    },
+    {
+      "name": "访问摄像头",
+      "pattern": "android.permission.CAMERA",
+      "desc": "允许应用程序访问摄像头进行拍照",
+      "sensitive": true
+    },
+    {
+      "name": "获取联系人",
+      "pattern": "android.permission.READ_CONTACTS",
+      "desc": "允许应用程序访问联系人数据",
+      "sensitive": true
+    },
+    {
+      "name": "访问麦克风",
+      "pattern": "android.permission.RECORD_AUDIO",
+      "desc": "允许程序录制音频，通过手机或耳机的麦克风",
+      "sensitive": true
+    },
+    {
+      "name": "获取设备唯一标识",
+      "pattern": "android.permission.READ_PRIVILEGED_PHONE_STATE",
+      "desc": "允许程序获取手机唯一标识",
+      "sensitive": true
+    },
+    {
+      "name": "后台访问位置信息",
+      "pattern": "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "desc": "允许程序后台访问位置信息",
+      "sensitive": true
+    },
+    {
+      "name": "创建、删除SD卡中文件",
+      "pattern": "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
+      "desc": "允许程序创建、删除SD卡中文件",
+      "sensitive": true
+    },
+    {
+      "name": "悬浮窗",
+      "pattern": "android.permission.SYSTEM_ALERT_WINDOW",
+      "desc": "允许程序打开窗口使用系统类型警告,显示在其他所有程序的顶层",
+      "sensitive": true
+    },
+    {
+      "name": "安装APP",
+      "pattern": "android.permission.REQUEST_INSTALL_PACKAGES",
+      "desc": "允许程序安装应用",
+      "sensitive": true
+    },
+    {
+      "name": "获取运行任务",
+      "pattern": "android.permission.GET_TASKS",
+      "desc": "获取正在运行的任务信息",
+      "sensitive": true
+    },
+    {
+      "name": "获取运动信息",
+      "pattern": "android.permission.ACTIVITY_RECOGNITION",
+      "desc": "允许程序识别身体活动",
+      "sensitive": true
+    },
+    {
+      "name": "读取网络信息状态",
+      "pattern": "android.permission.ACCESS_NETWORK_STATE",
+      "desc": "允许程序读取网络信息状态",
+      "sensitive": false
+    },
+    {
+      "name": "改变网络信息状态",
+      "pattern": "android.permission.CHANGE_NETWORK_STATE",
+      "desc": "允许程序改变网络连接状态",
+      "sensitive": false
+    },
+    {
+      "name": "访问网络数据",
+      "pattern": "android.permission.INTERNET",
+      "desc": "允许程序访问网络连接，可能产生GPRS流量",
+      "sensitive": false
+    },
+    {
+      "name": "获取WI-FI信息",
+      "pattern": "android.permission.ACCESS_WIFI_STATE",
+      "desc": "允许获取当前Wi-Fi接入的状态以及WLAN热点的信息",
+      "sensitive": false
+    },
+    {
+      "name": "改变Wi-Fi连接状态",
+      "pattern": "android.permission.CHANGE_WIFI_STATE",
+      "desc": "允许程序改变Wi-Fi连接状态",
+      "sensitive": false
+    },
+    {
+      "name": "连接已配对的蓝牙设备",
+      "pattern": "android.permission.BLUETOOTH",
+      "desc": "允许程序连接到已配对的蓝牙设备",
+      "sensitive": false
+    },
+    {
+      "name": "发现、配对蓝牙设备",
+      "pattern": "android.permission.BLUETOOTH_ADMIN",
+      "desc": "允许应用程序发现和配对蓝牙设备",
+      "sensitive": false
+    },
+    {
+      "name": "后台运行",
+      "pattern": "android.permission.WAKE_LOCK",
+      "desc": "允许程序在手机屏幕关闭后后台进程仍然运行（唤醒锁定）",
+      "sensitive": false
+    },
+    {
+      "name": "访问振动设备",
+      "pattern": "android.permission.VIBRATE",
+      "desc": "允许程序访问震动设备",
+      "sensitive": false
+    },
+    {
+      "name": "修改全局音频设置",
+      "pattern": "android.permission.MODIFY_AUDIO_SETTINGS",
+      "desc": "允许程序修改全局音频设置",
+      "sensitive": false
+    },
+    {
+      "name": "下载运行时发布系统通知",
+      "pattern": "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+      "desc": "控制下载管理器是否在下载运行时发布系统通知",
+      "sensitive": false
+    },
+    {
+      "name": "使用前台服务",
+      "pattern": "android.permission.FOREGROUND_SERVICE",
+      "desc": "允许常规应用程序使用前台服务",
+      "sensitive": false
+    },
+    {
+      "name": "读取系统底层日志",
+      "pattern": "android.permission.READ_LOGS",
+      "desc": "允许应用程序读取系统底层日志",
+      "sensitive": false
+    },
+    {
+      "name": "访问额外的位置提供命令",
+      "pattern": "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS",
+      "desc": "允许应用程序访问额外的位置提供命令",
+      "sensitive": false
+    },
+    {
+      "name": "访问闪光灯",
+      "pattern": "android.permission.FLASHLIGHT",
+      "desc": "允许应用程序访问闪光灯",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.sdu.didi.gsui.permission.MIPUSH_RECEIVE",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.coloros.mcs.permission.RECIEVE_MCS_MESSAGE",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.heytap.mcs.permission.RECIEVE_MCS_MESSAGE",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.sdu.didi.gsui.permission.PROCESS_PUSH_MSG",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.sdu.didi.gsui.permission.PUSH_PROVIDER",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.vivo.aiengine.permission.BIND_INTENTION_PLUS_SERVICE",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.asus.msa.SupplementaryDID.ACCESS",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "android.permission.BROADCAST_STICKY",
+      "desc": "允许一个程序发送粘性广播",
+      "sensitive": false
+    },
+    {
+      "name": "执行NFC近距离通讯",
+      "pattern": "android.permission.NFC",
+      "desc": "允许程序执行NFC近距离通讯操作",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "freemme.permission.msa",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "vfc.hce.broadcast.100000440000001.permission",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "vfc.hce.broadcast.100000440000001.permission",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "com.didi.passenger.sdk.login.permission.broadcast.com.sdu.didi.psnger",
+      "desc": "自定义权限",
+      "sensitive": false
+    },
+    {
+      "name": "自定义权限",
+      "pattern": "getui.permission.GetuiService.com.sdu.didi.psnger",
+      "desc": "自定义权限",
+      "sensitive": false
     }
   ]
 }

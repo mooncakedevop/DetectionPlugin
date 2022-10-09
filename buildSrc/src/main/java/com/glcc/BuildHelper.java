@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public class BuildHelper {
     public Pattern pattern = Pattern.compile(".*implementation.*'.*'");
     public Pattern dependency = Pattern.compile("'.+'");
+    static String defaultPath = "/Users/mooncake/IdeaProjects/DetectionPlugin/app";
+
 
     public HashMap<String, String> readGradle(String filePath) throws IOException {
         HashMap<String, String> map = new HashMap<>();
@@ -22,12 +24,15 @@ public class BuildHelper {
             if (pattern.matcher(line).matches()) {
                 Matcher matcher = dependency.matcher(line);
                 if (matcher.find()) {
-                    String[] infos = matcher.group().split(":");
-                    String org = infos[0];
-                    String product = infos[1];
-                    String version = infos[2];
-                    map.put(org + ":" + product, version);
-                    System.out.println("organization:" + org + " product:" + product + "  version: " + version);
+                    String lib = matcher.group().substring(1,matcher.group().length()-1);
+                    System.out.println("group :" + lib);
+                    String[] infos = lib.split(":");
+                    String key = "";
+                    for (int i = 0 ; i < infos.length-1; i++){
+                        key += infos[i];
+                    }
+                    String version = infos[infos.length-1];
+                    map.put(key, version);
                 }
             }
         }
