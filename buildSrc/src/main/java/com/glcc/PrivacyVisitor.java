@@ -107,7 +107,7 @@ class MyAdapter extends AdviceAdapter {
             point.setRule(rule);
             point.setInvokeStmt(stmt);
             result.getPoints().add(point);
-//            inject();
+            inject();
 
         }
         super.visitMethodInsn(opcode, owner, name, desc, itf);

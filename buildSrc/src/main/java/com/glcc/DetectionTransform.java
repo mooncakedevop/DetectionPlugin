@@ -88,7 +88,7 @@ class DetectionTransform extends HunterTransform {
                         jarInput.getContentTypes(),
                         jarInput.getScopes(), Format.JAR);
                 try {
-                    handJarInput(jarInput, destJar);
+                    transformJarItrnput(jarInput, destJar);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -159,7 +159,7 @@ class DetectionTransform extends HunterTransform {
         System.out.println("package path" + packagePath);
         System.out.println("input path" + inputFile.getAbsolutePath());
         if (inputFile.getAbsolutePath().contains(packagePath)) {
-            System.out.println("");
+            System.out.println("inject class");
             if (first) {
                 InjectApplication(packagePath, dstFile.getParent());
                 first = false;
@@ -188,10 +188,7 @@ class DetectionTransform extends HunterTransform {
         }
     }
 
-    private void handJarInput(JarInput jarInput, File destFile) throws IOException {
-        System.out.println("jarInput: " + jarInput.getFile().getName());
-        System.out.println("path:" + jarInput.getFile().getAbsolutePath());
-        System.out.println(jarInput.getFile().getAbsolutePath().endsWith(".jar"));
+    private void transformJarItrnput(JarInput jarInput, File destFile) throws IOException {
         if (jarInput.getFile().getAbsolutePath().endsWith(".jar")) {
             //重名名输出文件,因为可能同名,会覆盖
             String jarName = jarInput.getName();
@@ -214,9 +211,8 @@ class DetectionTransform extends HunterTransform {
             System.out.println("pass name: "+ jarName);
 
             System.out.println("jar name: " + jarName);
-            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
-            jarName = jarName.substring(0, jarName.length() - 4);
-            System.out.println(jarName);
+//            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
+
             JarFile jarFile = new JarFile(jarInput.getFile().getAbsolutePath());
             Enumeration enumeration = jarFile.entries();
             File tmpFile = new File(jarInput.getFile().getParent() + File.separator + "classes_temp.jar");
@@ -224,8 +220,6 @@ class DetectionTransform extends HunterTransform {
             if (tmpFile.exists()) {
                 tmpFile.delete();
             }
-            System.out.println(enumeration.hasMoreElements());
-            System.out.println(tmpFile.getAbsolutePath());
             JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(tmpFile));
             //用于保存
             while (enumeration.hasMoreElements()) {
