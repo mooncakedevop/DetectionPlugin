@@ -156,8 +156,6 @@ class DetectionTransform extends HunterTransform {
         String[] arr = path.split(File.separator);
         // convert packageName to file path
         String packagePath = packageName.replace(".", File.separator);
-        System.out.println("package path" + packagePath);
-        System.out.println("input path" + inputFile.getAbsolutePath());
         if (inputFile.getAbsolutePath().contains(packagePath)) {
             System.out.println("inject class");
             if (first) {
@@ -195,7 +193,6 @@ class DetectionTransform extends HunterTransform {
             System.out.println(jarName);
             String[] nameArr = jarName.split(":");
             if (nameArr.length < 2) {
-                System.out.println("nameArr:" +  jarName);
                 FileUtils.copyFile(jarInput.getFile(), destFile);
                 return;
             }
@@ -208,10 +205,6 @@ class DetectionTransform extends HunterTransform {
                 FileUtils.copyFile(jarInput.getFile(), destFile);
                 return;
             }
-            System.out.println("pass name: "+ jarName);
-
-            System.out.println("jar name: " + jarName);
-//            String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
 
             JarFile jarFile = new JarFile(jarInput.getFile().getAbsolutePath());
             Enumeration enumeration = jarFile.entries();
@@ -230,7 +223,6 @@ class DetectionTransform extends HunterTransform {
                 if (entryName.endsWith(".DSA") || entryName.endsWith(".SF")) continue;
                 //需要插桩class 根据自己的需求来-------------
                 if (!entryName.contains("android") && (entryName.endsWith(".class"))) {
-                    System.out.println("entry: " + entryName);
                     jarOutputStream.putNextEntry(zipEntry);
                     ClassReader classReader = new ClassReader(IOUtils.toByteArray(inputStream));
                     ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
@@ -256,11 +248,8 @@ class DetectionTransform extends HunterTransform {
 
     private void InjectApplication(String filePackageName, String dstPath) {
         try {
-            System.out.println("dst: " + dstPath);
-            System.out.println("pkg: " + filePackageName);
             File Application = new File(dstPath + File.separator + "DokitApplication.class");
             FileUtils.touch(Application);
-            System.out.println("add class: " + Application.getAbsolutePath());
             System.out.println();
             ApplicationGenerator.createClass(Application, filePackageName);
         } catch (IOException e) {

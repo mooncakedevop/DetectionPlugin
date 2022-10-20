@@ -91,9 +91,7 @@ class LibAdapter extends AdviceAdapter {
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 
         String sig = owner.replace("/", ".") + "." + name;
-        System.out.println("sig: " + sig);
         if (isPrivacy(sig)) {
-            System.out.println("class:" + className);
             PrivacyRule rule = new PrivacyRule();
             rule.setPattern(sig);
             rule.setCategory("api");

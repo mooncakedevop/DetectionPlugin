@@ -90,10 +90,8 @@ class MyAdapter extends AdviceAdapter {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        System.out.println("method: " + methodname);
         String sig = owner.replace("/", ".") + "." + name;
         if (isPrivacy(sig)) {
-//            new InjectVisitor(Opcodes.ASM5,mv);
             System.out.println("class:" + className);
             PrivacyRule rule = new PrivacyRule();
             rule.setPattern(sig);
