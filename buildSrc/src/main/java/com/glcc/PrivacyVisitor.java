@@ -1,9 +1,6 @@
 package com.glcc;
 
-import com.glcc.bean.DetectionPoint;
-import com.glcc.bean.InvokeStmt;
-import com.glcc.bean.PrivacyRule;
-import com.glcc.bean.ScanResult;
+import com.glcc.bean.*;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -14,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +52,7 @@ class MyAdapter extends AdviceAdapter {
      * @param name   the method's name.
      * @param desc   the method's descriptor (see {@link Type Type}).
      */
-    private List<String> res = new LinkedList<>();
+    private HashMap<String, InvokeStmt> API;
     private String className;
     private String packageName;
     private String methodname;
@@ -70,21 +68,7 @@ class MyAdapter extends AdviceAdapter {
     }
 
     public void readRules() {
-        String filePath = "/Users/mooncake/AndroidStudioProjects/DetectionPlugin/buildSrc/src/main/resources/privacy.txt";
-
-        try {
-            FileInputStream fin = new FileInputStream(filePath);
-            InputStreamReader reader = new InputStreamReader(fin);
-            BufferedReader buffReader = new BufferedReader(reader);
-            String str = "";
-            while ((str = buffReader.readLine()) != null) {
-                res.add(str);
-            }
-            buffReader.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        API = Util.readAPIConfig();
     }
 
 
@@ -97,7 +81,7 @@ class MyAdapter extends AdviceAdapter {
             rule.setPattern(sig);
             rule.setCategory("api");
             DetectionPoint point = new DetectionPoint();
-            InvokeStmt stmt = new InvokeStmt();
+            InvokeStmt stmt = API.get(sig);
             stmt.setPackageName(packageName);
             stmt.setInvokeClass(className);
             stmt.setInvokeMethod(methodname);
@@ -123,11 +107,9 @@ class MyAdapter extends AdviceAdapter {
     }
 
     public boolean isPrivacy(String sig) {
-        for (String str : res) {
-            if (str.contains(sig)) {
-                System.out.println("privacy api found: " + sig);
-                return true;
-            }
+        if (API.containsKey(sig)) {
+            System.out.println("privacy api found: " + sig);
+            return true;
         }
         return false;
     }

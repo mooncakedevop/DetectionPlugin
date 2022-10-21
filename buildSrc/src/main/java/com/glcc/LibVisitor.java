@@ -53,7 +53,7 @@ class LibAdapter extends AdviceAdapter {
      * @param name   the method's name.
      * @param desc   the method's descriptor (see {@link Type Type}).
      */
-    private List<String> res = new LinkedList<>();
+    private Map<String, InvokeStmt> API;
     private String className;
     private String libName;
     private String methodname;
@@ -69,21 +69,9 @@ class LibAdapter extends AdviceAdapter {
     }
 
     public void readRules() {
-        String filePath = "/Users/mooncake/AndroidStudioProjects/DetectionPlugin/buildSrc/src/main/resources/privacy.txt";
+       API  = Util.readAPIConfig();
 
-        try {
-            FileInputStream fin = new FileInputStream(filePath);
-            InputStreamReader reader = new InputStreamReader(fin);
-            BufferedReader buffReader = new BufferedReader(reader);
-            String str = "";
-            while ((str = buffReader.readLine()) != null) {
-                res.add(str);
-            }
-            buffReader.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -96,11 +84,10 @@ class LibAdapter extends AdviceAdapter {
             rule.setPattern(sig);
             rule.setCategory("api");
             DetectionPoint point = new DetectionPoint();
-            InvokeStmt stmt = new InvokeStmt();
+            InvokeStmt stmt = API.get(sig);
             stmt.setPackageName(libName);
             stmt.setInvokeClass(className);
             stmt.setInvokeMethod(methodname);
-            stmt.setThird(true);
             checkThird(result, stmt);
             point.setRule(rule);
             point.setInvokeStmt(stmt);
@@ -120,11 +107,9 @@ class LibAdapter extends AdviceAdapter {
     }
 
     public boolean isPrivacy(String sig) {
-        for (String str : res) {
-            if (str.contains(sig)) {
-                System.out.println("privacy api found: " + sig);
-                return true;
-            }
+        if (API.containsKey(sig)) {
+            System.out.println("privacy api found: " + sig);
+            return true;
         }
         return false;
     }

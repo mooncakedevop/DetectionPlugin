@@ -49,6 +49,8 @@ class DetectionTransform extends HunterTransform {
     public ManifestHelper scanPermission() {
         System.out.println("*******ScanPermission start*******");
         ManifestHelper m = new ManifestHelper(project.getProjectDir() + "/src/main/AndroidManifest.xml");
+
+
         System.out.println("packageName: " + m.getPackageName());
         appInfo.setPackageName(m.getPackageName());
         appInfo.setPluginVersion("0.1.0");
