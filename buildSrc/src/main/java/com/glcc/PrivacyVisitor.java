@@ -85,7 +85,7 @@ class MyAdapter extends AdviceAdapter {
             stmt.setPackageName(packageName);
             stmt.setInvokeClass(className);
             stmt.setInvokeMethod(methodname);
-            checkThird(result, stmt);
+            stmt.setThird(false);
             point.setRule(rule);
             point.setInvokeStmt(stmt);
             result.getPoints().add(point);
@@ -97,12 +97,10 @@ class MyAdapter extends AdviceAdapter {
 
     public void checkThird(ScanResult result, InvokeStmt stmt) {
         Map<String, String> libs = result.getLibs();
-        for (Map.Entry<String, String> lib : libs.entrySet()) {
-            if (lib.getKey().equals(packageName)) {
+        if (libs.containsKey(packageName)){
                 stmt.setThird(true);
-                stmt.setLibName(lib.getKey());
-                stmt.setLibVersion(lib.getValue());
-            }
+                stmt.setLibName(packageName);
+                stmt.setLibVersion(libs.get(packageName));
         }
     }
 

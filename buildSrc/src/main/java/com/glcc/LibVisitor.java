@@ -99,7 +99,7 @@ class LibAdapter extends AdviceAdapter {
 
     public void checkThird(ScanResult result, InvokeStmt stmt) {
         Map<String, String> libs = result.getLibs();
-        if (libs.containsKey(libs)){
+        if (libs.containsKey(libName)){
             stmt.setThird(true);
             stmt.setLibName(libName);
             stmt.setLibVersion(libs.get(libName));
